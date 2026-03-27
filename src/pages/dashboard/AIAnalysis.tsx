@@ -9,23 +9,77 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
+const manualSections = [
+  {
+    title: "1. Salary / Income",
+    fields: [
+      { key: "grossSalary", label: "Gross Salary", placeholder: "1500000" },
+      { key: "basicSalary", label: "Basic Salary", placeholder: "600000" },
+      { key: "hraReceived", label: "HRA Received", placeholder: "240000" },
+      { key: "rentPaid", label: "Rent Paid", placeholder: "300000" },
+    ],
+  },
+  {
+    title: "2. Taxes Paid",
+    fields: [{ key: "tdsDeducted", label: "TDS Deducted", placeholder: "85000" }],
+  },
+  {
+    title: "4. Tax Deductions",
+    fields: [
+      { key: "investments80c", label: "80C Investments", placeholder: "150000" },
+      { key: "healthInsurance80d", label: "Health Insurance (80D)", placeholder: "25000" },
+      { key: "nps80ccd1b", label: "NPS (80CCD(1B))", placeholder: "50000" },
+      { key: "homeLoanInterest", label: "Home Loan Interest (Section 24)", placeholder: "200000" },
+      { key: "educationLoanInterest", label: "Education Loan Interest (80E)", placeholder: "0" },
+      { key: "donations80g", label: "Donations (80G)", placeholder: "10000" },
+      { key: "professionalTax", label: "Professional Tax", placeholder: "2500" },
+    ],
+  },
+  {
+    title: "5. Other Income",
+    fields: [
+      { key: "interestIncome", label: "Interest Income", placeholder: "12000" },
+      { key: "dividendIncome", label: "Dividend Income", placeholder: "8000" },
+      { key: "stockStcg", label: "Stock STCG", placeholder: "25000" },
+      { key: "stockLtcg", label: "Stock LTCG", placeholder: "40000" },
+      { key: "otherIncome", label: "Other Income", placeholder: "15000" },
+    ],
+  },
+] as const;
+
+const createManualForm = () => ({
+  grossSalary: "",
+  basicSalary: "",
+  hraReceived: "",
+  rentPaid: "",
+  tdsDeducted: "",
+  investments80c: "",
+  healthInsurance80d: "",
+  nps80ccd1b: "",
+  homeLoanInterest: "",
+  educationLoanInterest: "",
+  donations80g: "",
+  professionalTax: "",
+  interestIncome: "",
+  dividendIncome: "",
+  stockStcg: "",
+  stockLtcg: "",
+  otherIncome: "",
+});
+
 const AIAnalysis = () => {
   const [mode, setMode] = useState("manual");
   const [showResults, setShowResults] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [cityType, setCityType] = useState("");
-  const [riskAppetite, setRiskAppetite] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
+  const [manualCityType, setManualCityType] = useState("");
+  const [manualRiskAppetite, setManualRiskAppetite] = useState("");
+  const [uploadAge, setUploadAge] = useState("");
+  const [uploadCityType, setUploadCityType] = useState("");
+  const [uploadRiskAppetite, setUploadRiskAppetite] = useState("");
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const [form, setForm] = useState({
-    age: "",
-    income: "",
-    expenses: "",
-    savings: "",
-    investments: "",
-  });
+  const [form, setForm] = useState(createManualForm);
 
   useEffect(() => {
     if (!isAnalyzing) {
@@ -40,22 +94,26 @@ const AIAnalysis = () => {
   }, [isAnalyzing]);
 
   const handleAnalyze = () => {
-    if (!cityType || !riskAppetite) {
-      toast({
-        title: "Missing fields",
-        description: "City Type and Risk Appetite are mandatory.",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (mode === "manual") {
+      const hasEmptyManualField = Object.values(form).some((value) => !value.trim());
 
-    if (mode === "upload" && !selectedFile) {
-      toast({
-        title: "Upload required",
-        description: "Please choose a file before running upload analysis.",
-        variant: "destructive",
-      });
-      return;
+      if (hasEmptyManualField || !manualCityType || !manualRiskAppetite) {
+        toast({
+          title: "Missing fields",
+          description: "All manual input fields, City Type, and Investment Risk Appetite are mandatory.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } else {
+      if (!selectedFile || !uploadCityType || !uploadRiskAppetite) {
+        toast({
+          title: "Missing fields",
+          description: "Upload a document and complete Risk Appetite and City Type before analysis.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setShowResults(true);
@@ -65,16 +123,13 @@ const AIAnalysis = () => {
   const handleReset = () => {
     setShowResults(false);
     setIsAnalyzing(false);
-    setCityType("");
-    setRiskAppetite("");
     setSelectedFile("");
-    setForm({
-      age: "",
-      income: "",
-      expenses: "",
-      savings: "",
-      investments: "",
-    });
+    setManualCityType("");
+    setManualRiskAppetite("");
+    setUploadAge("");
+    setUploadCityType("");
+    setUploadRiskAppetite("");
+    setForm(createManualForm());
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -85,7 +140,12 @@ const AIAnalysis = () => {
     healthScore: 72,
     monthlySavings: "Rs 75,000",
     investmentAllocation: "60% Equity, 25% Debt, 15% Gold",
-    riskProfile: riskAppetite === "high" ? "Aggressive" : riskAppetite === "low" ? "Conservative" : "Balanced",
+    riskProfile:
+      (mode === "manual" ? manualRiskAppetite : uploadRiskAppetite) === "high"
+        ? "Aggressive"
+        : (mode === "manual" ? manualRiskAppetite : uploadRiskAppetite) === "low"
+          ? "Conservative"
+          : "Balanced",
     emergencyFund: "4.2 months",
     insuranceGap: "Rs 1Cr cover recommended",
   };
@@ -132,38 +192,119 @@ const AIAnalysis = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="manual" className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {[
-                  { label: "Age", key: "age", placeholder: "28" },
-                  { label: "Monthly Income (Rs)", key: "income", placeholder: "120000" },
-                  { label: "Monthly Expenses (Rs)", key: "expenses", placeholder: "45000" },
-                  { label: "Total Savings (Rs)", key: "savings", placeholder: "500000" },
-                  { label: "Existing Investments (Rs)", key: "investments", placeholder: "1000000" },
-                ].map((field) => (
-                  <div key={field.key} className="space-y-2">
-                    <Label className="text-white/72">{field.label}</Label>
-                    <Input
-                      type="number"
-                      placeholder={field.placeholder}
-                      value={form[field.key as keyof typeof form]}
-                      onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-                      className="rounded-2xl border-white/10 bg-white/[0.04] text-white placeholder:text-white/24"
-                    />
+            <TabsContent value="manual" className="space-y-6">
+              {manualSections.map((section) => (
+                <div key={section.title} className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                  <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-violet-100/82">{section.title}</p>
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {section.fields.map((field) => (
+                      <div key={field.key} className="space-y-2">
+                        <Label className="text-white/72">
+                          {field.label} <span className="text-violet-200">*</span>
+                        </Label>
+                        <Input
+                          type="number"
+                          placeholder={field.placeholder}
+                          value={form[field.key]}
+                          onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
+                          className="rounded-2xl border-white/10 bg-white/[0.04] text-white placeholder:text-white/24"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+              ))}
+
+              <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-violet-100/82">3. Investment Profile</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-white/72">
+                      City Type <span className="text-violet-200">*</span>
+                    </Label>
+                    <Select value={manualCityType} onValueChange={setManualCityType}>
+                      <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
+                        <SelectValue placeholder="Select city type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="metro">Metro</SelectItem>
+                        <SelectItem value="non-metro">Non-Metro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/72">
+                      Investment Risk Appetite <span className="text-violet-200">*</span>
+                    </Label>
+                    <Select value={manualRiskAppetite} onValueChange={setManualRiskAppetite}>
+                      <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
+                        <SelectValue placeholder="Select risk level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="upload">
+            <TabsContent value="upload" className="space-y-6">
+              <div className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5">
+                <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-violet-100/82">Upload Requirements</p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label className="text-white/72">Age</Label>
+                    <Input
+                      type="number"
+                      placeholder="28"
+                      value={uploadAge}
+                      onChange={(e) => setUploadAge(e.target.value)}
+                      className="rounded-2xl border-white/10 bg-white/[0.04] text-white placeholder:text-white/24"
+                    />
+                    <p className="text-xs text-white/34">Optional for upload-based analysis.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/72">
+                      Risk Appetite <span className="text-violet-200">*</span>
+                    </Label>
+                    <Select value={uploadRiskAppetite} onValueChange={setUploadRiskAppetite}>
+                      <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
+                        <SelectValue placeholder="Select risk level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-white/72">
+                      City Type <span className="text-violet-200">*</span>
+                    </Label>
+                    <Select value={uploadCityType} onValueChange={setUploadCityType}>
+                      <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
+                        <SelectValue placeholder="Select city type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="metro">Metro</SelectItem>
+                        <SelectItem value="non-metro">Non-Metro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
               <div className="rounded-[24px] border border-dashed border-white/14 bg-white/[0.03] p-10 text-center">
                 <Upload className="mx-auto mb-3 h-10 w-10 text-violet-200/70" />
-                <p className="text-white/72">Drop your bank statement, salary slip, or CAMS file here</p>
-                <p className="mt-1 text-sm text-white/38">PDF, CSV, or Excel formats supported</p>
+                <p className="text-white/72">Upload Form-16 / Financial Document (PDF)</p>
+                <p className="mt-1 text-sm text-white/38">PDF documents only for upload analysis</p>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.csv,.xls,.xlsx"
+                  accept=".pdf"
                   className="hidden"
                   onChange={(event) => {
                     const file = event.target.files?.[0];
@@ -177,7 +318,7 @@ const AIAnalysis = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className="mt-4 rounded-full border-white/12 bg-white/[0.04] text-white"
                 >
-                  Browse Files
+                  Browse PDF
                 </Button>
                 <p className="mt-3 text-sm text-violet-100/72">
                   {selectedFile ? `Selected: ${selectedFile}` : "No file selected yet"}
@@ -185,41 +326,6 @@ const AIAnalysis = () => {
               </div>
             </TabsContent>
           </Tabs>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label className="text-white/72">
-                City Type <span className="text-violet-200">*</span>
-              </Label>
-              <Select value={cityType} onValueChange={setCityType}>
-                <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
-                  <SelectValue placeholder="Select city type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="metro">Metro</SelectItem>
-                  <SelectItem value="urban">Urban</SelectItem>
-                  <SelectItem value="rural">Rural</SelectItem>
-                </SelectContent>
-              </Select>
-              {!cityType && <p className="text-xs text-white/34">Required for recommendation accuracy.</p>}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white/72">
-                Risk Appetite <span className="text-violet-200">*</span>
-              </Label>
-              <Select value={riskAppetite} onValueChange={setRiskAppetite}>
-                <SelectTrigger className="rounded-2xl border-white/10 bg-white/[0.04] text-white">
-                  <SelectValue placeholder="Select risk level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-              {!riskAppetite && <p className="text-xs text-white/34">Required before analysis can run.</p>}
-            </div>
-          </div>
 
           <Button onClick={handleAnalyze} disabled={isAnalyzing} className="primary-button mt-6 rounded-full px-8 disabled:opacity-70">
             {isAnalyzing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
