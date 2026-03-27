@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { LoaderCircle, RefreshCcw, Sparkles, Upload } from "lucide-react";
+import { FileText, LoaderCircle, RefreshCcw, Sparkles, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,6 +72,7 @@ const AIAnalysis = () => {
   const [showResults, setShowResults] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedFile, setSelectedFile] = useState("");
+  const [selectedFileUrl, setSelectedFileUrl] = useState("");
   const [manualCityType, setManualCityType] = useState("");
   const [manualRiskAppetite, setManualRiskAppetite] = useState("");
   const [uploadAge, setUploadAge] = useState("");
@@ -80,6 +81,17 @@ const AIAnalysis = () => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [form, setForm] = useState(createManualForm);
+
+  const clearSelectedFile = () => {
+    setSelectedFile("");
+    if (selectedFileUrl) {
+      URL.revokeObjectURL(selectedFileUrl);
+      setSelectedFileUrl("");
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     if (!isAnalyzing) {
@@ -92,6 +104,14 @@ const AIAnalysis = () => {
 
     return () => window.clearTimeout(timeout);
   }, [isAnalyzing]);
+
+  useEffect(() => {
+    return () => {
+      if (selectedFileUrl) {
+        URL.revokeObjectURL(selectedFileUrl);
+      }
+    };
+  }, [selectedFileUrl]);
 
   const handleAnalyze = () => {
     if (mode === "manual") {
@@ -130,10 +150,7 @@ const AIAnalysis = () => {
     setUploadCityType("");
     setUploadRiskAppetite("");
     setForm(createManualForm());
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    clearSelectedFile();
   };
 
   const results = {
@@ -309,6 +326,10 @@ const AIAnalysis = () => {
                   onChange={(event) => {
                     const file = event.target.files?.[0];
                     setSelectedFile(file?.name ?? "");
+                    if (selectedFileUrl) {
+                      URL.revokeObjectURL(selectedFileUrl);
+                    }
+                    setSelectedFileUrl(file ? URL.createObjectURL(file) : "");
                   }}
                 />
                 <Button
@@ -320,9 +341,41 @@ const AIAnalysis = () => {
                 >
                   Browse PDF
                 </Button>
-                <p className="mt-3 text-sm text-violet-100/72">
-                  {selectedFile ? `Selected: ${selectedFile}` : "No file selected yet"}
-                </p>
+                {selectedFile ? (
+                  <div className="mx-auto mt-5 max-w-sm rounded-[20px] border border-white/10 bg-white/[0.04] p-4 text-left">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-400/16 text-violet-100">
+                          <FileText className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">PDF Ready</p>
+                          <p className="mt-1 max-w-[220px] truncate text-sm text-violet-100/72">{selectedFile}</p>
+                          <p className="mt-1 text-xs text-white/38">Small PDF preview</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={clearSelectedFile}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/60 transition-colors hover:bg-rose-500/14 hover:text-rose-200"
+                        aria-label="Remove selected PDF"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                    {selectedFileUrl && (
+                      <div className="mt-4 overflow-hidden rounded-[16px] border border-white/10 bg-white">
+                        <iframe
+                          src={`${selectedFileUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                          title="Uploaded PDF preview"
+                          className="h-44 w-full"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-violet-100/72">No file selected yet</p>
+                )}
               </div>
             </TabsContent>
           </Tabs>
