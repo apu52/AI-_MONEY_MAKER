@@ -60,9 +60,9 @@ const oldRegimeSlabs = [
 
 const newRegimeSlabs = [
   { label: "0-3L", rate: "0%" },
-  { label: "3-6L", rate: "5%" },
-  { label: "6-9L", rate: "10%" },
-  { label: "9-12L", rate: "15%" },
+  { label: "3-7L", rate: "5%" },
+  { label: "7-10L", rate: "10%" },
+  { label: "10-12L", rate: "15%" },
   { label: "12-15L", rate: "20%" },
   { label: "Above 15L", rate: "30%" },
 ] as const;
@@ -211,7 +211,14 @@ const TaxOptimizer = () => {
             { title: "New Regime Slabs", slabs: newRegimeSlabs },
           ].map((group) => (
             <div key={group.title} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-              <p className="text-lg font-semibold text-white">{group.title}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-lg font-semibold text-white">{group.title}</p>
+                {group.title === "New Regime Slabs" && (
+                  <span className="rounded-full border border-violet-200/20 bg-violet-300/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-violet-100">
+                    AY 2025-26
+                  </span>
+                )}
+              </div>
               <div className="mt-5 space-y-3">
                 {group.slabs.map((slab) => (
                   <div key={slab.label} className="flex items-center justify-between rounded-[18px] border border-white/8 bg-black/20 px-4 py-3">
@@ -220,6 +227,21 @@ const TaxOptimizer = () => {
                   </div>
                 ))}
               </div>
+              {group.title === "New Regime Slabs" && (
+                <div className="mt-5 space-y-3 rounded-[20px] border border-violet-200/12 bg-[linear-gradient(135deg,rgba(137,84,255,0.16),rgba(255,255,255,0.02))] p-4">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white/80">
+                      Standard Deduction: Rs 75,000
+                    </span>
+                    <span className="rounded-full border border-emerald-300/18 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-200">
+                      Section 87A Rebate
+                    </span>
+                  </div>
+                  <p className="text-sm leading-6 text-white/60">
+                    Resident individuals can get rebate under Section 87A in the new regime, so no tax is payable if total income does not exceed Rs 7,00,000.
+                  </p>
+                </div>
+              )}
             </div>
           ))}
         </div>
