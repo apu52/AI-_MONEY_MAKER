@@ -1,95 +1,104 @@
-import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { BookOpenText, CheckCircle2, Clapperboard, SlidersHorizontal } from "lucide-react";
+import { BarChart3, BookOpenText, CheckCircle2, Clapperboard, Landmark, Sparkles } from "lucide-react";
 
 const formatCurrency = (value: number) => `Rs ${Math.round(value).toLocaleString("en-IN")}`;
 
 const chapterCards = [
   {
-    title: "Scene 1: Two roads",
-    text: "Think of tax regimes like two roads to the same destination. One road is simpler. The other gives more ways to save if you carry the right deduction tools.",
+    title: "Scene 1: Two tax paths",
+    text: "India gives salaried taxpayers two main ways to calculate tax. The new regime is simpler, while the old regime can reward deduction planning.",
   },
   {
-    title: "Scene 2: New regime",
-    text: "The new regime is the cleaner road. Fewer deductions matter here, so it is easier to understand and often better when your deductions are low.",
+    title: "Scene 2: Deductions change outcomes",
+    text: "Sections like 80C, 80D, 80CCD(1B), HRA, and home-loan benefits are the main reasons the old regime can sometimes save more.",
   },
   {
-    title: "Scene 3: Old regime",
-    text: "The old regime is the smart-planning road. If you use 80C, 80D, HRA, and other deductions well, this road can save more tax.",
+    title: "Scene 3: Learn before you choose",
+    text: "This page is now a simple tax guide, designed like a blog so beginners can understand slabs, deductions, and regime comparisons without any calculator input.",
   },
 ] as const;
 
 const deductionLimits = [
-  { label: "80C", value: "Rs 1.5L", note: "Used for ELSS, PPF, EPF and other common tax-saving investments." },
-  { label: "80D", value: "Rs 25K / Rs 50K", note: "Health insurance deduction depending on age and family structure." },
-  { label: "Standard Deduction", value: "Rs 50K", note: "A basic salary deduction used in the old regime explanation." },
-  { label: "HRA", value: "Salary structure based", note: "Depends on salary breakup, rent, and whether your city is metro or not." },
+  {
+    label: "80C",
+    value: "Max Rs 1,50,000",
+    note: "Covers EPF, PPF, ELSS, life insurance premium, tuition fees, and home-loan principal repayment.",
+  },
+  {
+    label: "80D",
+    value: "Max Rs 25,000",
+    note: "Health insurance deduction. This can go up to Rs 50,000 for senior citizens.",
+  },
+  {
+    label: "80CCD(1B)",
+    value: "Extra Rs 50,000",
+    note: "Additional deduction for NPS contributions beyond the standard 80C limit.",
+  },
+  {
+    label: "HRA",
+    value: "Depends on salary and rent",
+    note: "Available in the old regime based on salary structure, HRA received, rent paid, and city type.",
+  },
+  {
+    label: "Standard Deduction",
+    value: "Rs 50,000 / Rs 75,000",
+    note: "Common salaried deduction. Old regime commonly uses Rs 50,000, while the new regime uses Rs 75,000 in this dashboard explanation.",
+  },
+  {
+    label: "Home Loan Interest",
+    value: "Up to Rs 2,00,000",
+    note: "Section 24 deduction for self-occupied house property under the old regime.",
+  },
+] as const;
+
+const oldRegimeSlabs = [
+  { label: "0-2.5L", rate: "0%" },
+  { label: "2.5-5L", rate: "5%" },
+  { label: "5-10L", rate: "20%" },
+  { label: "Above 10L", rate: "30%" },
+] as const;
+
+const newRegimeSlabs = [
+  { label: "0-3L", rate: "0%" },
+  { label: "3-6L", rate: "5%" },
+  { label: "6-9L", rate: "10%" },
+  { label: "9-12L", rate: "15%" },
+  { label: "12-15L", rate: "20%" },
+  { label: "Above 15L", rate: "30%" },
+] as const;
+
+const oldExample = {
+  income: 800000,
+  taxableIncome: 620000,
+  applicableSlab: "20%",
+  effectiveTaxRate: "7.9%",
+  finalTax: 48984,
+  summary:
+    "If your income is Rs 8L, the first Rs 2.5L has no tax, the next Rs 2.5L is taxed at 5%, and the remaining taxable portion is taxed at 20%.",
+  segments: [
+    { label: "0-2.5L", income: 250000, tax: 0, incomeShare: 40, taxShare: 0 },
+    { label: "2.5-5L", income: 250000, tax: 12500, incomeShare: 40, taxShare: 25.5 },
+    { label: "5-10L", income: 120000, tax: 24000, incomeShare: 20, taxShare: 49 },
+    { label: "Health & Education Cess", income: 0, tax: 2464, incomeShare: 0, taxShare: 5.5 },
+  ],
+} as const;
+
+const recommendationPoints = [
+  {
+    title: "Old regime is usually better when",
+    text: "You actively use deductions like 80C, 80D, HRA, NPS, and home-loan benefits to reduce taxable income.",
+  },
+  {
+    title: "New regime is usually better when",
+    text: "You prefer simpler filing and do not claim many deductions, exemptions, or salary-structure based tax benefits.",
+  },
+  {
+    title: "What to compare before choosing",
+    text: "Check total deductions, taxable income after those deductions, final tax under both regimes, and the savings difference between them.",
+  },
 ] as const;
 
 const TaxOptimizer = () => {
-  const [salary, setSalary] = useState(1200000);
-  const [deductionLevel, setDeductionLevel] = useState(220000);
-  const [hraSupport, setHraSupport] = useState(120000);
-
-  const totalDeductions = deductionLevel + hraSupport;
-
-  const oldTax = useMemo(() => {
-    const taxableIncome = Math.max(0, salary - totalDeductions - 50000);
-    let tax = 0;
-    if (taxableIncome > 1000000) tax += (taxableIncome - 1000000) * 0.3;
-    if (taxableIncome > 500000) tax += Math.min(taxableIncome - 500000, 500000) * 0.2;
-    if (taxableIncome > 250000) tax += Math.min(taxableIncome - 250000, 250000) * 0.05;
-    return Math.round(tax + tax * 0.04);
-  }, [salary, totalDeductions]);
-
-  const newTax = useMemo(() => {
-    const taxableIncome = Math.max(0, salary - 75000);
-    let tax = 0;
-    const slabs = [
-      { limit: 400000, rate: 0 },
-      { limit: 800000, rate: 0.05 },
-      { limit: 1200000, rate: 0.1 },
-      { limit: 1600000, rate: 0.15 },
-      { limit: 2000000, rate: 0.2 },
-      { limit: 2400000, rate: 0.25 },
-      { limit: Infinity, rate: 0.3 },
-    ];
-
-    let previousLimit = 0;
-    for (const slab of slabs) {
-      if (taxableIncome <= previousLimit) break;
-      const taxableSlice = Math.min(taxableIncome, slab.limit) - previousLimit;
-      tax += taxableSlice * slab.rate;
-      previousLimit = slab.limit;
-    }
-
-    return Math.round(tax + tax * 0.04);
-  }, [salary]);
-
-  const savings = Math.abs(oldTax - newTax);
-  const betterRegime = oldTax <= newTax ? "Old Regime" : "New Regime";
-
-  const guidance = useMemo(() => {
-    if (salary <= 900000 && totalDeductions < 150000) {
-      return {
-        title: "For lower income with fewer deductions",
-        text: "The new regime is usually easier and often better because you are not using many deduction benefits.",
-      };
-    }
-
-    if (totalDeductions >= 300000) {
-      return {
-        title: "For higher deductions",
-        text: "The old regime becomes more powerful because deductions and HRA start pulling taxable income down meaningfully.",
-      };
-    }
-
-    return {
-      title: "Middle zone",
-      text: "Both sides stay close here. A little more deduction planning can push the old regime ahead, while low deduction usage keeps the new regime attractive.",
-    };
-  }, [salary, totalDeductions]);
-
   return (
     <div className="space-y-6">
       <motion.section
@@ -101,10 +110,10 @@ const TaxOptimizer = () => {
           <p className="text-xs uppercase tracking-[0.22em] text-white/36">Tax Story</p>
           <h1 className="mt-2 flex items-center gap-3 text-3xl font-semibold text-white">
             <Clapperboard className="h-7 w-7 text-violet-200" />
-            Old vs New Regime
+            Old vs New Tax Regime
           </h1>
           <p className="mt-2 max-w-3xl text-white/56">
-            This page works like a short visual vlog. Move the sliders, watch the side-by-side change live, and understand which regime can be better without feeling like you are using a tax calculator.
+            This page is a simple tax blog that explains deductions, tax slabs, and how your final tax is calculated in a clear beginner-friendly format.
           </p>
         </div>
 
@@ -126,67 +135,53 @@ const TaxOptimizer = () => {
       >
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
-            <SlidersHorizontal className="h-5 w-5" />
+            <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-white/36">Interactive View</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">Move the story sliders</h2>
+            <p className="text-xs uppercase tracking-[0.22em] text-white/36">Tax Guide</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">What changes between the two regimes</h2>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
-              Slide income and deduction strength to see how the answer changes. This keeps the page visual, live, and easy to follow.
+              The new regime offers a cleaner structure with fewer deduction benefits, while the old regime rewards tax planning through deductions and exemptions.
             </p>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-3">
-          <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-            <div className="flex items-center justify-between text-sm text-white/56">
-              <span>Annual income</span>
-              <span>{formatCurrency(salary)}</span>
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {recommendationPoints.map((item) => (
+            <div key={item.title} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-lg font-semibold text-white">{item.title}</p>
+              <p className="mt-3 text-sm leading-7 text-white/58">{item.text}</p>
             </div>
-            <input
-              type="range"
-              min="300000"
-              max="5000000"
-              step="50000"
-              value={salary}
-              onChange={(e) => setSalary(Number(e.target.value))}
-              className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-violet-400"
-            />
-            <p className="mt-3 text-sm leading-6 text-white/50">Drag this to see how tax changes at different income levels.</p>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-[24px] border border-violet-200/12 bg-[linear-gradient(135deg,rgba(137,84,255,0.16),rgba(255,255,255,0.02))] p-5 shadow-[0_22px_70px_rgba(116,65,230,0.16)]">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-300/12 text-violet-100">
+              <BookOpenText className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-white/36">Deduction Details</p>
+              <h3 className="mt-2 text-xl font-semibold text-white">Important yearly deduction limits</h3>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
+                These are the most common deduction limits people review before deciding whether the old regime is worth using.
+              </p>
+            </div>
           </div>
 
-          <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-            <div className="flex items-center justify-between text-sm text-white/56">
-              <span>Deductions strength</span>
-              <span>{formatCurrency(deductionLevel)}</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="400000"
-              step="10000"
-              value={deductionLevel}
-              onChange={(e) => setDeductionLevel(Number(e.target.value))}
-              className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-violet-400"
-            />
-            <p className="mt-3 text-sm leading-6 text-white/50">Higher deductions usually make the old regime more useful.</p>
-          </div>
-
-          <div className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
-            <div className="flex items-center justify-between text-sm text-white/56">
-              <span>HRA impact</span>
-              <span>{formatCurrency(hraSupport)}</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="300000"
-              step="10000"
-              value={hraSupport}
-              onChange={(e) => setHraSupport(Number(e.target.value))}
-              className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-violet-400"
-            />
-            <p className="mt-3 text-sm leading-6 text-white/50">This shows how salary structure and rent-related support can change the old regime story.</p>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {deductionLimits.map((item) => (
+              <div key={item.label} className="dashboard-card-hover rounded-[20px] border border-white/10 bg-black/20 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-white">{item.label}</p>
+                  <span className="rounded-full border border-violet-200/20 bg-violet-300/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-violet-100">
+                    Limit
+                  </span>
+                </div>
+                <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
+                <p className="mt-2 text-sm leading-6 text-white/54">{item.note}</p>
+              </div>
+            ))}
           </div>
         </div>
       </motion.section>
@@ -195,76 +190,38 @@ const TaxOptimizer = () => {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.06 }}
-        className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]"
+        className="dashboard-card rounded-[24px] p-6"
       >
-        <div className="grid gap-6 sm:grid-cols-2">
-          {[
-            {
-              title: "Old Regime",
-              tax: oldTax,
-              isBetter: betterRegime === "Old Regime",
-              description: "Best when deductions, HRA support, and salary structure are working hard for you.",
-            },
-            {
-              title: "New Regime",
-              tax: newTax,
-              isBetter: betterRegime === "New Regime",
-              description: "Best when deductions are low and you want a simpler tax route.",
-            },
-          ].map((regime) => (
-            <div
-              key={regime.title}
-              className={`dashboard-card dashboard-card-hover rounded-[24px] p-6 ${
-                regime.isBetter ? "border-violet-200/18 shadow-[0_28px_80px_rgba(116,65,230,0.22)]" : ""
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-xl font-semibold text-white">{regime.title}</p>
-                {regime.isBetter && (
-                  <span className="rounded-full bg-violet-300/14 px-3 py-1 text-xs uppercase tracking-[0.16em] text-violet-100">
-                    Better
-                  </span>
-                )}
-              </div>
-              <p className={`mt-5 text-4xl font-semibold ${regime.isBetter ? "text-shimmer" : "text-white"}`}>
-                {formatCurrency(regime.tax)}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-white/54">{regime.description}</p>
-            </div>
-          ))}
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
+            <Landmark className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-white/36">Understand Your Tax</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Tax slab explanation</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
+              Each regime taxes income in layers. As income crosses a slab threshold, only the amount inside that slab is taxed at that slab rate.
+            </p>
+          </div>
         </div>
 
-        <div className="dashboard-card rounded-[24px] p-6">
-          <p className="text-xs uppercase tracking-[0.18em] text-white/36">Vlog narrator says</p>
-          <h3 className="mt-3 text-2xl font-semibold text-white">{guidance.title}</h3>
-          <p className="mt-3 text-sm leading-7 text-white/62">{guidance.text}</p>
-
-          <div className="mt-6 rounded-[20px] border border-violet-200/12 bg-[linear-gradient(135deg,rgba(137,84,255,0.16),rgba(255,255,255,0.02))] p-5">
-            <div className="flex items-center gap-4">
-              <CheckCircle2 className="h-9 w-9 shrink-0 text-emerald-300" />
-              <div>
-                <p className="text-lg font-semibold text-white">
-                  Right now, <span className="text-shimmer">{betterRegime}</span> leads by <span className="text-shimmer">{formatCurrency(savings)}</span>
-                </p>
-                <p className="mt-1 text-sm text-white/54">This number updates live as you move the sliders.</p>
+        <div className="mt-6 grid gap-5 lg:grid-cols-2">
+          {[
+            { title: "Old Regime Slabs", slabs: oldRegimeSlabs },
+            { title: "New Regime Slabs", slabs: newRegimeSlabs },
+          ].map((group) => (
+            <div key={group.title} className="rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-lg font-semibold text-white">{group.title}</p>
+              <div className="mt-5 space-y-3">
+                {group.slabs.map((slab) => (
+                  <div key={slab.label} className="flex items-center justify-between rounded-[18px] border border-white/8 bg-black/20 px-4 py-3">
+                    <span className="text-sm text-white/68">{slab.label}</span>
+                    <span className="text-sm font-semibold text-white">{slab.rate}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-sm font-semibold text-white">Lower deductions</p>
-              <p className="mt-1 text-sm leading-6 text-white/58">New regime is usually better because there are fewer deduction benefits to use in the old regime.</p>
-            </div>
-            <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-sm font-semibold text-white">Higher deductions</p>
-              <p className="mt-1 text-sm leading-6 text-white/58">Old regime often becomes better because deductions start reducing taxable income more strongly.</p>
-            </div>
-            <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-sm font-semibold text-white">For beginners</p>
-              <p className="mt-1 text-sm leading-6 text-white/58">Simple rule: less deduction planning usually means new regime, more deduction planning usually means old regime.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </motion.section>
 
@@ -272,29 +229,148 @@ const TaxOptimizer = () => {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.08 }}
-        className="dashboard-card rounded-[24px] p-6"
+        className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]"
       >
-        <div className="flex items-start gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
-            <BookOpenText className="h-5 w-5" />
+        <div className="dashboard-card rounded-[24px] p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
+              <BookOpenText className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-white/36">How Your Tax Is Calculated</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">Simple example for beginners</h2>
+            </div>
           </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-white/36">Deduction Limits</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white">Important numbers to remember</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
-              These are the key limits beginners usually need to remember before deciding between the two regimes.
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-white/54">User Income</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{formatCurrency(oldExample.income)}</p>
+            </div>
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-white/54">Applicable Slab</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{oldExample.applicableSlab}</p>
+            </div>
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-white/54">Tax Percentage</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{oldExample.effectiveTaxRate}</p>
+            </div>
+            <div className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-sm text-white/54">Final Tax</p>
+              <p className="mt-2 text-2xl font-semibold text-white">{formatCurrency(oldExample.finalTax)}</p>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-[22px] border border-violet-200/12 bg-[linear-gradient(135deg,rgba(137,84,255,0.16),rgba(255,255,255,0.02))] p-5">
+            <p className="text-sm font-semibold text-white">Easy explanation</p>
+            <p className="mt-3 text-sm leading-7 text-white/62">{oldExample.summary}</p>
+            <p className="mt-3 text-sm leading-7 text-white/62">
+              In this example, taxable income is shown as <span className="text-white">{formatCurrency(oldExample.taxableIncome)}</span> after deductions.
             </p>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-          {deductionLimits.map((item) => (
-            <div key={item.label} className="dashboard-card-hover rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-white/36">{item.label}</p>
-              <p className="mt-3 text-2xl font-semibold text-white">{item.value}</p>
-              <p className="mt-2 text-sm leading-6 text-white/54">{item.note}</p>
+        <div className="dashboard-card rounded-[24px] p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
+              <BarChart3 className="h-5 w-5" />
             </div>
-          ))}
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-white/36">Visual Tax Breakdown</p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">How income is divided across slabs</h2>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {oldExample.segments.map((segment) => (
+              <div key={segment.label} className="rounded-[20px] border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold text-white">{segment.label}</p>
+                  <p className="text-sm text-white/56">
+                    {segment.income > 0 ? `${formatCurrency(segment.income)} income` : `${formatCurrency(segment.tax)} added`}
+                  </p>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.14em] text-white/34">
+                      <span>Income in layer</span>
+                      <span>{segment.incomeShare}%</span>
+                    </div>
+                    <div className="h-3 overflow-hidden rounded-full bg-white/8">
+                      <div
+                        className="h-full rounded-full bg-[linear-gradient(90deg,#efc8ff_0%,#be87ff_55%,#7d49ff_100%)]"
+                        style={{ width: `${Math.max(segment.incomeShare, segment.income > 0 ? 6 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.14em] text-white/34">
+                      <span>Tax from layer</span>
+                      <span>{segment.taxShare}%</span>
+                    </div>
+                    <div className="h-3 overflow-hidden rounded-full bg-white/8">
+                      <div
+                        className="h-full rounded-full bg-[linear-gradient(90deg,rgba(255,120,120,0.95),rgba(170,60,120,0.9))]"
+                        style={{ width: `${Math.max(segment.taxShare, segment.tax > 0 ? 6 : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <p className="mt-3 text-sm leading-6 text-white/54">
+                  Tax applied from this part: <span className="text-white">{formatCurrency(segment.tax)}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      <motion.section
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="dashboard-card rounded-[24px] p-6"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400/18 text-violet-100">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-white/36">Which Regime Can Be Better</p>
+            <h2 className="mt-2 text-2xl font-semibold text-white">Simple conclusion</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
+              There is no single best regime for everyone. The better option depends on how much deduction value you can actually claim.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          <div className="dashboard-card-hover rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-lg font-semibold text-white">Choose old regime if</p>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              You have strong deduction planning, HRA benefit, insurance deductions, and investment-linked tax savings.
+            </p>
+          </div>
+          <div className="dashboard-card-hover rounded-[22px] border border-violet-200/18 bg-[linear-gradient(135deg,rgba(137,84,255,0.16),rgba(255,255,255,0.03))] p-5 shadow-[0_24px_70px_rgba(116,65,230,0.18)]">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-lg font-semibold text-white">Recommended idea</p>
+              <span className="rounded-full bg-violet-300/14 px-3 py-1 text-xs uppercase tracking-[0.16em] text-violet-100">
+                Compare both
+              </span>
+            </div>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              If your deductions are high, old regime often becomes stronger. If deductions are low, new regime often feels cleaner and lighter.
+            </p>
+          </div>
+          <div className="dashboard-card-hover rounded-[22px] border border-white/10 bg-white/[0.03] p-5">
+            <p className="text-lg font-semibold text-white">Choose new regime if</p>
+            <p className="mt-3 text-sm leading-7 text-white/58">
+              You want a simple structure and do not depend much on exemptions, HRA calculations, or multiple deduction categories.
+            </p>
+          </div>
         </div>
       </motion.section>
     </div>
