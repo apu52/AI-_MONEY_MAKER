@@ -1,0 +1,43 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="36" y1="24" x2="214" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A1330"/>
+      <stop offset="0.52" stop-color="#0E1220"/>
+      <stop offset="1" stop-color="#080A12"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="58" y1="40" x2="196" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F1D4FF"/>
+      <stop offset="0.45" stop-color="#B06CFF"/>
+      <stop offset="1" stop-color="#5FE3D3"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="88" y1="74" x2="172" y2="176" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8EEFF"/>
+      <stop offset="0.42" stop-color="#D6A7FF"/>
+      <stop offset="1" stop-color="#7F5CFF"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(84 68) rotate(47.7) scale(172.547)">
+      <stop stop-color="#D9A9FF" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#D9A9FF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="24" y="24" width="208" height="208" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="14"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.309804 0 0 0 0 0.168627 0 0 0 0 0.627451 0 0 0 0.45 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="208" height="208" rx="56" fill="url(#bg)"/>
+  <rect x="24" y="24" width="208" height="208" rx="56" fill="url(#glow)"/>
+  <rect x="31" y="31" width="194" height="194" rx="49" stroke="url(#ring)" stroke-opacity="0.38" stroke-width="2"/>
+
+  <g filter="url(#shadow)">
+    <path d="M72 163C72 118.265 108.265 82 153 82H174V103H153C119.862 103 93 129.862 93 163V174H72V163Z" fill="url(#mark)"/>
+    <path d="M85 171L113.924 137.997C117.947 133.408 125.087 133.227 129.337 137.607L145.266 154.018C148.849 157.711 154.763 158.381 159.119 155.603L184 139.731" stroke="url(#ring)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="183" cy="140" r="12" fill="#5FE3D3"/>
+  </g>
+</svg>
