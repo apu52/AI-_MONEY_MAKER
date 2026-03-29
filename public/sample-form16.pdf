@@ -1,0 +1,81 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 719 >>
+stream
+BT
+/F1 16 Tf
+72 740 Td
+(Sample Form 16 - Test Upload Document) Tj
+0 -28 Td
+/F1 11 Tf
+(Employee Name: Rahul Sharma) Tj
+0 -18 Td
+(PAN: ABCDE1234F) Tj
+0 -18 Td
+(Assessment Year: 2025-26) Tj
+0 -18 Td
+(Employer: Demo Tech Private Limited) Tj
+0 -32 Td
+(Gross Salary: 1500000) Tj
+0 -18 Td
+(Basic Salary: 600000) Tj
+0 -18 Td
+(HRA Received: 240000) Tj
+0 -18 Td
+(Rent Paid: 300000) Tj
+0 -18 Td
+(TDS Deducted: 85000) Tj
+0 -32 Td
+(Section 80C: 150000) Tj
+0 -18 Td
+(Section 80D: 25000) Tj
+0 -18 Td
+(NPS: 50000) Tj
+0 -18 Td
+(Home Loan Interest: 200000) Tj
+0 -18 Td
+(Education Loan Interest: 0) Tj
+0 -18 Td
+(Donations 80G: 10000) Tj
+0 -18 Td
+(Professional Tax: 2500) Tj
+0 -32 Td
+(Interest Income: 12000) Tj
+0 -18 Td
+(Dividend Income: 8000) Tj
+0 -18 Td
+(Stock STCG: 25000) Tj
+0 -18 Td
+(Stock LTCG: 40000) Tj
+0 -18 Td
+(Other Income: 15000) Tj
+0 -32 Td
+(This PDF is a frontend test sample for upload analysis.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001011 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1081
+%%EOF
