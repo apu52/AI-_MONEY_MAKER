@@ -59,12 +59,13 @@ const oldRegimeSlabs = [
 ] as const;
 
 const newRegimeSlabs = [
-  { label: "0-3L", rate: "0%" },
-  { label: "3-7L", rate: "5%" },
-  { label: "7-10L", rate: "10%" },
-  { label: "10-12L", rate: "15%" },
-  { label: "12-15L", rate: "20%" },
-  { label: "Above 15L", rate: "30%" },
+  { label: "Up to Rs 4,00,000", rate: "NIL" },
+  { label: "Rs 4,00,001 to Rs 8,00,000", rate: "5%" },
+  { label: "Rs 8,00,001 to Rs 12,00,000", rate: "10%" },
+  { label: "Rs 12,00,001 to Rs 16,00,000", rate: "15%" },
+  { label: "Rs 16,00,001 to Rs 20,00,000", rate: "20%" },
+  { label: "Rs 20,00,001 to Rs 24,00,000", rate: "25%" },
+  { label: "Above Rs 24,00,000", rate: "30%" },
 ] as const;
 
 const oldExample = {
@@ -141,7 +142,7 @@ const TaxOptimizer = () => {
             <p className="text-xs uppercase tracking-[0.22em] text-white/36">Tax Guide</p>
             <h2 className="mt-2 text-2xl font-semibold text-white">What changes between the two regimes</h2>
             <p className="mt-2 max-w-3xl text-sm leading-7 text-white/58">
-              The new regime offers a cleaner structure with fewer deduction benefits, while the old regime rewards tax planning through deductions and exemptions.
+              The new regime now follows the updated slab structure from your shared tax reference, while the old regime still rewards deeper deduction planning through exemptions and investments.
             </p>
           </div>
         </div>
@@ -215,7 +216,7 @@ const TaxOptimizer = () => {
                 <p className="text-lg font-semibold text-white">{group.title}</p>
                 {group.title === "New Regime Slabs" && (
                   <span className="rounded-full border border-violet-200/20 bg-violet-300/10 px-3 py-1 text-xs uppercase tracking-[0.14em] text-violet-100">
-                    AY 2025-26
+                    FY 2025-26 / AY 2026-27
                   </span>
                 )}
               </div>
@@ -238,7 +239,7 @@ const TaxOptimizer = () => {
                     </span>
                   </div>
                   <p className="text-sm leading-6 text-white/60">
-                    Resident individuals can get rebate under Section 87A in the new regime, so no tax is payable if total income does not exceed Rs 7,00,000.
+                    Resident individuals can claim Section 87A rebate in the new regime, so taxable income up to Rs 12,00,000 pays zero income tax. Salaried taxpayers can also use the Rs 75,000 standard deduction, making income up to Rs 12,75,000 effectively tax-free in this explanation.
                   </p>
                 </div>
               )}
